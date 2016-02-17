@@ -19,9 +19,9 @@ import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
 @Configuration
 @EnableTransactionManagement
 public class ApplicationContextConfig {
-	  private final String DB_URL = "jdbc:mysql://localhost:3306/study";
-	    private final String DB_USER_NAME = "root";
-	    private final String DB_USER_PASSWORD = "";
+	  private final String DB_URL = "jdbc:mysql://192.168.0.104:3306/study";
+	    private final String DB_USER_NAME = "board";
+	    private final String DB_USER_PASSWORD = "board";
 	    
 	    private final String[] PACKAGE_TARGET = {"com.mmventures.study.dto"};
 
@@ -38,7 +38,9 @@ public class ApplicationContextConfig {
 
 	    private Properties getHibernateProperties() {
 		Properties properties = new Properties();
-
+		
+		properties.put(Environment.ENABLE_LAZY_LOAD_NO_TRANS, "true");
+		
 		properties.put(Environment.SHOW_SQL, "true");
 		// SQL 포멧 정렬
 		properties.put(Environment.FORMAT_SQL, "true");
