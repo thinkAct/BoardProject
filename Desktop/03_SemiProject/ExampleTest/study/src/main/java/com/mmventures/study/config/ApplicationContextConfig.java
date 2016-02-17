@@ -38,7 +38,8 @@ public class ApplicationContextConfig {
 
 	    private Properties getHibernateProperties() {
 		Properties properties = new Properties();
-
+		
+		properties.put(Environment.ENABLE_LAZY_LOAD_NO_TRANS, "true");
 		properties.put(Environment.SHOW_SQL, "true");
 		// SQL 포멧 정렬
 		properties.put(Environment.FORMAT_SQL, "true");
