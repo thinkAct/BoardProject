@@ -1,6 +1,7 @@
 package com.mmventures.study.controller;
 
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,32 +35,43 @@ public class BoardController {
 	@RequestMapping(value = "/read.html", method = RequestMethod.GET)
 	public ModelAndView read(HttpServletRequest request, HttpServletResponse response){
 		
-		int seq = Integer.parseInt(request.getParameter("seq"));
+		int boardId = Integer.parseInt(request.getParameter("seq"));
 
-		System.out.println("seq = "+ seq);
+		System.out.println("seq = "+ boardId);
 
-		ModelAndView mav = new ModelAndView("read","read", boardService.readContent(seq));		
-//		mav.addObject("comments", boardService.commentList(seq));
+		ModelAndView mav = new ModelAndView("read","read", boardService.readContent(boardId));		
+		
+		List<BoardComment> boardComments = boardService.commentList(boardId);
+		
+		if(boardComments!=null) {
+			
+			System.out.println("boardComment is null");
+		
+		} else {
+			System.out.println("boardComment is not null");
+		}
+		
+		mav.addObject("comments", boardComments);
 		return mav;
 	}
 
 	@RequestMapping(value="/comment.html")
 	public ModelAndView comment(HttpServletRequest request, HttpServletResponse response){
 
-		int seq = Integer.parseInt(request.getParameter("seq"));
+		int boardId = Integer.parseInt(request.getParameter("seq"));
 
-		System.out.println("seq = "+ seq +"name "+ request.getParameter("name")+request.getParameter("comment"));
+		System.out.println("boardId = "+ boardId +"name "+ request.getParameter("name")+request.getParameter("comment"));
 		BoardComment boardComment = new BoardComment();
 		boardComment.setName(request.getParameter("name"));
 		boardComment.setComm(request.getParameter("comment"));
 
-		boardService.insertComment(seq, boardComment);
+		boardService.insertComment(boardId, boardComment);
 		
 		ModelAndView mav = new ModelAndView();
 		
 //		mav.addObject("comments", boardService.commentList(seq));
 //		System.out.println("Comments ="+boardService.commentList(seq));
-		mav.setViewName("redirect:/read.html?seq=" + seq);
+		mav.setViewName("redirect:/read.html?seq=" + boardId);
 		
 		return mav;
 	}
@@ -83,7 +95,7 @@ public class BoardController {
 
 		System.out.println("쓰기 "+name + title + password + content);
 		Board board = new Board(name,password,title,content,fileName);
-
+		System.out.println("board id = " +board.getBoardId());
 		boardService.insertBoard(board);
 		return new ModelAndView("redirect:/list");
 
@@ -94,12 +106,12 @@ public class BoardController {
 	public ModelAndView updatePageGo(HttpServletRequest request, HttpServletResponse response)throws Exception{
 
 		System.out.println("게시글 받");
-		String seq = request.getParameter("seq");
+		String boardId = request.getParameter("seq");
 		
 		
-		System.out.println("seq = "+ seq);
+		System.out.println("boardId = "+ boardId);
 		
-		return new ModelAndView("update", "board",boardService.readContent(Integer.parseInt(seq)));
+		return new ModelAndView("update", "board",boardService.readContent(Integer.parseInt(boardId)));
 
 	}
 
@@ -108,29 +120,29 @@ public class BoardController {
 	public ModelAndView update(HttpServletRequest request, HttpServletResponse response) {
 		System.out.println("updateComplete");
 
-		String seq = request.getParameter("seq");
+		String boardId = request.getParameter("seq");
 		String password = request.getParameter("passwd");
 
 		String title = request.getParameter("title");
 		String name = request.getParameter("name");
 		String content = request.getParameter("content");
-		System.out.println("seq = "+seq +"name = "+name+",password = "+password+"title = "+title+"content = "+content);
+		System.out.println("boardId = "+boardId +"name = "+name+",password = "+password+"title = "+title+"content = "+content);
 
 		Board newBoard = new Board(name,title,content);
-		newBoard.setSeq(Integer.parseInt(seq));
+		newBoard.setBoardId(Integer.parseInt(boardId));
 
 		boardService.updateBoard(newBoard);
 
-		return new ModelAndView("redirect:/read.html?seq="+seq);
+		return new ModelAndView("redirect:/read.html?seq="+boardId);
 
 	}
 	
 	@RequestMapping(value="/boardDelete")
 	public ModelAndView delete(HttpServletRequest request, HttpServletResponse response) {
 		System.out.println("board Delete");
-		String seq = request.getParameter("seq");
-		System.out.println("seq = "+ seq);
-		boardService.deleteBoard(Integer.parseInt(seq));
+		String boardId = request.getParameter("seq");
+		System.out.println("seq = "+ boardId);
+		boardService.deleteBoard(Integer.parseInt(boardId));
 		return new ModelAndView("redirect:/list");
 	}
 

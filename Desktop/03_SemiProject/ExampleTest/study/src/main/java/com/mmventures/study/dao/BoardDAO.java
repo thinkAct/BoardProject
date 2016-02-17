@@ -73,7 +73,7 @@ public class BoardDAO {
 	
 	/**
 	 */
-//	public List<Board> loadBoardContent(int seq){
+//	public List<Board> loadBoardContent(int boardId){
 //		System.out.println("loadBoardContent");
 //		List<Board> boardList = new ArrayList<Board>();
 //
@@ -85,8 +85,8 @@ public class BoardDAO {
 //
 //			System.out.println("query before");
 //			boardList = (List<Board>) session.createQuery(
-//					"from Board where seq = ? ")
-//					.setParameter(0, new Integer(seq))
+//					"from Board where boardId = ? ")
+//					.setParameter(0, new Integer(boardId))
 //					.list();
 //
 //			System.out.println("query after");
@@ -109,15 +109,15 @@ public class BoardDAO {
 	 * @return Board return Board instance.
 	 */
 	//예제에서는 파라미터가 string 이었음 
-	public final Board readContent(final int seq) {
+	public final Board readContent(final int boardId) {
 
 		List<Board> boardList = new ArrayList<Board>();
 
 		Session  session = this.sessionFactory.openSession();
 		try {
 
-			boardList = (List<Board>)session.createQuery("from Board where id =?").
-					setParameter(0, seq).list();			
+			boardList = (List<Board>)session.createQuery("from Board where boardId =?").
+					setParameter(0, boardId).list();			
 
 		} finally {
 
@@ -128,7 +128,7 @@ public class BoardDAO {
 
 		if (boardList.size() > 0) {
 
-			this.updateReadCount(seq,boardList.get(0).getReadCount());
+			this.updateReadCount(boardId,boardList.get(0).getReadCount());
 
 			return boardList.get(0);
 
@@ -143,7 +143,7 @@ public class BoardDAO {
 	 * @param seq int this seq info point selected board.
 	 */
 	//예제에서는 파라미터가 string 이었음
-	public final void updateReadCount(final int seq, final int count){
+	public final void updateReadCount(final int boardId, final int count){
 		Session session = sessionFactory.openSession();
 		
 		
@@ -154,9 +154,9 @@ public class BoardDAO {
 		try {
 			
 			Query query = session.createQuery(
-					"update Board set readCount = :count where seq =:seq ");
+					"update Board set readCount = :count where boardId =:id ");
 				query.setParameter("count", visitCount);
-				query.setParameter("seq", new Integer(seq));
+				query.setParameter("id", new Integer(boardId));
 				
 			System.out.println("count ="+visitCount);
 			
@@ -222,14 +222,14 @@ public class BoardDAO {
 
 
 
-	private Board findBoard(int boardSeq) {
+	private Board findBoard(int boardId) {
 		List<Board> board = new ArrayList<Board>();
 		Session session = this.sessionFactory.openSession();
 
 		try {
 
-			board = session.createQuery("from Board where id =?").
-					setParameter(0, new Integer(boardSeq)).list();
+			board = session.createQuery("from Board where boardId =?").
+					setParameter(0, new Integer(boardId)).list();
 
 		} finally {
 			session.close();
@@ -249,7 +249,7 @@ public class BoardDAO {
 	 * insert Comment into board.
 	 * @param comment BoardComment instance is returned.
 	 */
-	public void insertComment(final int boardSeq, final BoardComment comment) {
+	public void insertComment(final int boardId, final BoardComment comment) {
 
 		BoardComment newComment = new BoardComment(
 				comment.getName(), comment.getComm());
@@ -286,53 +286,54 @@ public class BoardDAO {
 	 * @param seq int
 	 * @return ArrayList<BoardComment>
 	 */
-//	public List<BoardComment> commentList (int seq){
-//
-//
-//		List<Board> board = new ArrayList<Board>();
-//		Session session = this.sessionFactory.openSession();
-//		try {
-//
-//			board  = session.createQuery("from Board where seq=?").setParameter(0, new Integer(seq)).list();
-//
-//		} finally {			
-//
-//			session.close();
-//
-//		}
-//
-//
-//		if(board.size() > 0 ){
-//
-//			return board.get(0).getComment();
-//
-//		}else{
-//
-//			return null;
-//		}
-//
-//	}
+	public List<BoardComment> commentList (int commentId){
+
+
+		List<Board> board = new ArrayList<Board>();
+		Session session = this.sessionFactory.openSession();
+		try {
+
+			board  = session.createQuery("from Board where boardId=:id").
+					setParameter("id", new Integer(commentId)).list();
+
+		} finally {			
+
+			session.close();
+
+		}
+
+
+		if(board.size() > 0 ){
+			System.out.println("Board size is bigger than 0");
+			return board.get(0).getBoardComments();
+
+		}else{
+			System.out.println("Board size is less than 0");
+			return null;
+		}
+
+	}
 
 
 
-	public void insertBoard(Board board){
+	public void insertBoard(Board board) {
 		Date now = new Date();
 		Board newBoard = new Board();
-
+		newBoard.setBoardId(board.getBoardId());
 		newBoard.setName(board.getName());
 		newBoard.setpassword(board.getpassword());
 		newBoard.setTitle(board.getTitle());
 		newBoard.setContent(board.getContent());
 		newBoard.setFileName(board.getFileName());
 		newBoard.setRegdate(now);
-
+		System.out.println("new board id = " + newBoard.getBoardId());
 		Session session = this.sessionFactory.openSession();
 		session.beginTransaction();
 		try {
 			session.save(newBoard);
 			session.getTransaction().commit();
 			System.out.println("new board commit is completed.");
-		} catch(HibernateException he) {
+		} catch (HibernateException he) {
 			System.out.println("Hibernate data store exception in insertBoard");
 
 			session.getTransaction().rollback();
@@ -355,12 +356,12 @@ public class BoardDAO {
 
 		Query query = session.createQuery(
 				"update Board set title = :title "
-				+ ", content = :content  where seq= :seq");
+				+ ", content = :content  where boardId= :id");
 
 		query.setParameter("title", board.getTitle());
 		query.setParameter("content", board.getContent());
-		query.setParameter("seq",
-				new Integer(board.getSeq()));
+		query.setParameter("id",
+				new Integer(board.getBoardId()));
 		
 		
 		//업데이트/삭제 엔티티 개수를  리턴
@@ -373,18 +374,18 @@ public class BoardDAO {
 	 * This board is actually not deleted. just toggle isDelete variable.
 	 * @param seq int board sequence.
 	 */
-	public void deleteBoard(int seq){
+	public void deleteBoard(int boardId){
 		
 		
 		Session session = sessionFactory.openSession();
 
 		Query query = session.createQuery(
 				"update Board set isDeleted =:deleted "
-				+ " where seq =:seq");
+				+ " where boardId =:id");
 
 		
 		query.setParameter("deleted", new Boolean(true));
-		query.setParameter("seq",seq);
+		query.setParameter("id",boardId);
 		
 		
 		//업데이트/삭제 엔티티 개수를  리턴

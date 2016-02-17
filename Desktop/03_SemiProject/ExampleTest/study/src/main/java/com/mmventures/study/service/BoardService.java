@@ -29,9 +29,9 @@ public class BoardService {
 		boardDAO.insertComment(seq, comment);
 	} 
 	
-//	public List<BoardComment> commentList(int seq){
-//		return boardDAO.commentList(seq);
-//	}
+	public List<BoardComment> commentList(int seq){
+		return boardDAO.commentList(seq);
+	}
 	
 	public void insertBoard(Board board){
 		boardDAO.insertBoard(board);

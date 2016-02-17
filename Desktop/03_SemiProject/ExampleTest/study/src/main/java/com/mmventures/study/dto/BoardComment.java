@@ -1,30 +1,34 @@
 package com.mmventures.study.dto;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 public class BoardComment {
 	@Id
-	@GeneratedValue
-	private int seq;
+	@GeneratedValue(strategy = IDENTITY)
+	private int commentId;
 	private String name;
 	private String comm;
 	
-	@ManyToOne
-	private Board board; 
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="boardId")
+	private Board boardContent;
 	
 	
 	public BoardComment(){} 
 	
-	public Board getBoard() {
-		return board;
+	public Board getboardContent() {
+		return boardContent;
 	}
 
-	public void setBoard(Board board) {
-		this.board = board;
+	public void setboardContent(Board board) {
+		this.boardContent = board;
 	}
 	
 	public BoardComment(String name, String comm) {
@@ -32,10 +36,10 @@ public class BoardComment {
 		this.comm = comm;
 	}
 	public final int getSeq() {
-		return seq;
+		return commentId;
 	}
 	public final void setSeq(int seq) {
-		this.seq = seq;
+		this.commentId = seq;
 	}
 	public final String getName() {
 		return name;
